@@ -26,6 +26,7 @@ class SchellingAgent(Agent):
         self.income = income
         self.unique_id = unique_id
 
+    ''' Below step is completely changed compared to the other/old models (NEW) '''
     def step(self):
         average_parcel_income = self.model.parcel_values[self.pos]
 
@@ -41,7 +42,7 @@ class SchellingAgent(Agent):
                 if value > self.income or value ==0:
                     richer_parcel_list.append(key)
 
-            #If there is a 'welathier' parcel, move to a randomly chosen one
+            #If there is a 'wealthier' parcel, move to a randomly chosen one
             if len(richer_parcel_list) != 0:
                 new_location = self.model.random.choice(richer_parcel_list)
                 print(new_location)
@@ -100,7 +101,7 @@ class Schelling(Model):
                     if self.random.random() < self.minority_pc:
                         agent_type = 1
                         self.total_blue_agents_count += 1
-                        agent = SchellingAgent((x,y,i), (x, y), self, agent_type, random.normal(loc=40, scale=5))
+                        agent = SchellingAgent((x,y,i), (x, y), self, agent_type, random.normal(loc=40, scale=5)) #Adding income distribution (NEW)
                     else:
                         agent_type = 0
                         self.total_red_agents_count += 1
@@ -116,7 +117,7 @@ class Schelling(Model):
 
     def step(self):
         """
-        Run one step of the model. If All agents are happy, halt the model.
+        Run one step of the model. Update the average income in a parcel (NEW)
         """
         #Updating dictonary where (x,y) are the keys and the parcel's average income the value
         for cell in self.grid.coord_iter():
@@ -161,7 +162,7 @@ class Schelling(Model):
             self.running = False
 
 
-
+#function to analyse the level of segregation
 def get_segregation(model):
     '''
     Find the % of agents that only have neighbors of their same type.

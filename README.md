@@ -18,4 +18,4 @@ In model.py the model is setup. To run the model and analyse is, use the analysi
 
 - Distribution A is for now fixed at a mean of 100, with a std of 10.
 - Distribution B is for now fixed at a mean of 40, with a std of 5
-- 
+- The average income on of a parcel is updated at the start of every tick, and thus **not** every time an agent moves. This can be adjusted. 
