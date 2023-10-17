@@ -1,6 +1,6 @@
 # SchellingSegregation
 
-In model.py the model is setup. To run the model and analyse is, use the analysis.ipynb file. The run.py file can also be used to run the model while visualising it (in a webbrowser). However, for this baseline model, the visualisation does not add much/any value. The other files in this directory are not of importance (yet). 
+In model.py the model is set up. To run the model and analyse is, use the analysis.ipynb file. The run.py file can also be used to run the model while visualising it (in a webbrowser). However, for this baseline model, the visualisation does not add much/any value. The other files in this directory are not of importance (yet). 
 
 ### Baseline model workings ###
 
