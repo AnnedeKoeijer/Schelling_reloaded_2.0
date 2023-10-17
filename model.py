@@ -35,16 +35,25 @@ class SchellingAgent(Agent):
             #print(f'this is the income: {self.income}')
             old_location = self.pos
 
-            #Look for parcels where they have on average a higher income than own income
-            richer_parcel_list = []
-            for key, value in self.model.parcel_values.items():
-                #print(f'this is the value: {value}')
-                if value > self.income or value ==0:
-                    richer_parcel_list.append(key)
+            parcel_list = []
+
+            if self.type == 0:
+                #Look for parcels where they have on average a higher income than own income
+                for key, value in self.model.parcel_values.items():
+                    #print(f'this is the value: {value}')
+                    if value > self.income or value ==0:
+                        parcel_list.append(key)
+
+            else:
+                # Look for parcels where they have on average a lower income than own income
+                for key, value in self.model.parcel_values.items():
+                    # print(f'this is the value: {value}')
+                    if value < self.income:
+                        parcel_list.append(key)
 
             #If there is a 'wealthier' parcel, move to a randomly chosen one
-            if len(richer_parcel_list) != 0:
-                new_location = self.model.random.choice(richer_parcel_list)
+            if len(parcel_list) != 0:
+                new_location = self.model.random.choice(parcel_list)
                 print(new_location)
                 self.model.grid.move_agent(self, new_location)
 

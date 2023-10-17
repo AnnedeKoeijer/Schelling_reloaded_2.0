@@ -11,7 +11,7 @@ In model.py the model is setup. To run the model and analyse is, use the analysi
 * (initially) 20% empty cells, and 80% occupied cells
 * the cells can hold any number of agents (in this case, from 0 to 800)
 * (initially) each of the occupied cells has 10 agents, randomly selected from the entirety of agents (without regards to their income or group)
-* “system nudge” (or “rule of the game?”): each agent seeks to “up their game” = if their income is higher than the mean income of the cell, they move to a randomly selected other cell where their income is lower than the mean income of that cell or to an empty cell
+* “system nudge” (or “rule of the game?”): each agent seeks to “up their game” = if their income is higher than the mean income of the cell, they move want to move. A agents move to a randomly selected other cell where their income is **lower** than the mean income of that cell or to an empty cell. B Agents move to a randomly selected other cell where their income is **higher** than the mean.
 * note: we don’t care about boundary conditions in this one because “neighbourhood” is defined as all people IN your cell, not NEXT to it 
 
 **Important notes**:
