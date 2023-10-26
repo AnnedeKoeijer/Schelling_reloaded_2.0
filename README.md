@@ -19,3 +19,19 @@ In model.py the model is set up. To run the model and analyse is, use the analys
 - Distribution A is for now fixed at a mean of 100, with a std of 10.
 - Distribution B is for now fixed at a mean of 40, with a std of 5
 - The average income on of a parcel is updated at the start of every tick, and thus **not** every time an agent moves. This can be adjusted. 
+
+### Setting up a conda environment
+
+To set up a conda environment for the Jupyter notebook: 
+* open the command line interface (Terminal on macOS/Anaconda Prompt on Windows)
+* navigate to the main project folder
+* run in terminal:
+```
+conda env create -f schelling-env.yml
+conda activate schell
+```
+* next, to run the Jupyter notebook, make sure to activate the `schell` environment first 
+* to run the `.py` script (visulization in the browser), use 
+```
+python3 <filename.py>
+```

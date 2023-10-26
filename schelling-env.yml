@@ -1,0 +1,15 @@
+name: schell
+channels:
+  - conda-forge
+  - conda
+  - defaults
+dependencies:
+  - python=3.10
+  - matplotlib 
+  - mesa
+  - numpy
+  - statistics
+  - jupyter
+  - ipykernel
+  - pandas
+  - seaborn
