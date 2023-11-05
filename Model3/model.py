@@ -5,6 +5,8 @@ from mesa.space import MultiGrid
 from mesa.datacollection import DataCollector
 from numpy import random
 from statistics import mean
+from statistics import median
+import numpy as np
 from plots import model_plots
 
 class SchellingAgent(Agent):
@@ -27,34 +29,34 @@ class SchellingAgent(Agent):
         self.income = income
         self.unique_id = unique_id
 
-    ''' Below step is completely changed compared to the other/old models (NEW) '''
     def step(self):
-        average_parcel_income = self.model.parcel_values[self.pos]
+        '''
+        This step is completely changed compared to the other/old models. It defines when and how an agent will move (changed 04/11)
+        '''
 
-        #If own income is higher than average income of current parcel
-        if self.income > average_parcel_income:
+        lower_bound, median_parcel_income, upper_bound = self.model.parcel_values[self.pos]
+        difference_average = abs(self.income-median_parcel_income)
+
+        #If own income is higher than the upper bound or lower than the lower bound of the cells income distribution
+        if (self.income > upper_bound) or (self.income < lower_bound):
             #print(f'this is the income: {self.income}')
-            old_location = self.pos
 
             parcel_list = []
 
-            if self.type == 0:
-                #Look for parcels where they have on average a higher income than own income
-                for key, value in self.model.parcel_values.items():
-                    #print(f'this is the value: {value}')
-                    if value > self.income or value ==0:
+            #Append cells whos median income is closer to the agents distribution or cells that are empty
+            for key, value in self.model.parcel_values.items():
+                #print(f'this is the value: {value}')
+                if value == 0:      #If the cell is empty
+                    parcel_list.append(key)
+
+                else:
+                    if abs(self.income - value[1]) < difference_average:
                         parcel_list.append(key)
 
-            else:
-                # Look for parcels where they have on average a lower income than own income
-                for key, value in self.model.parcel_values.items():
-                    # print(f'this is the value: {value}')
-                    if value < self.income:
-                        parcel_list.append(key)
-
-            #If there is a 'wealthier' parcel, move to a randomly chosen one
+            #If possible, move to a rnadom new location that is closer to agents own income
             if len(parcel_list) != 0:
                 new_location = self.model.random.choice(parcel_list)
+                #print(new_location)
                 self.model.grid.move_agent(self, new_location)
 
         else:
@@ -66,15 +68,6 @@ class Schelling(Model):
     """
 
     def __init__(self, height=20, width=20, density=0.8, minority_pc=0.2):
-
-        self.total_satisfaction_index = 0 # o indice total de agentes satisfeitos
-        self.blue_satisfaction_index  = 0 # o indice de agentes azuis satisfeitos
-        self.red_satisfaction_index   = 0 # o indice de agentes vermelhos satisfeitos
-        self.total_blue_agents_count  = 0 # o total de agentes azuis
-        self.total_red_agents_count   = 0 # o total de agentes vermelhos
-        self.happy_blue_agents_count  = 0 # o numero de agentes azuis felizes
-        self.happy_red_agents_count   = 0 # o numero de agentes vermelhos felizes
-
         self.height = height
         self.width = width
         self.density = density
@@ -89,9 +82,6 @@ class Schelling(Model):
         self.datacollector = DataCollector(model_reporters=
             {
                 "happy": "happy",
-                "total_satisfaction_index": lambda m: self.total_satisfaction_index,
-                "blue_satisfaction_index": lambda m: self.blue_satisfaction_index,
-                "red_satisfaction_index": lambda m: self.red_satisfaction_index,
                 "Segregated": get_segregation
             }, agent_reporters=
             # For testing purposes, agent's individual x and y
@@ -108,12 +98,10 @@ class Schelling(Model):
             if self.random.random() < self.density:
                 for i in range(0,10):
                     if self.random.random() < self.minority_pc:
-                        agent_type = 1
-                        self.total_blue_agents_count += 1
+                        agent_type = 1 #Blue agents
                         agent = SchellingAgent((x,y,i), (x, y), self, agent_type, random.normal(loc=40, scale=5)) #Adding income distribution (NEW)
                     else:
-                        agent_type = 0
-                        self.total_red_agents_count += 1
+                        agent_type = 0 #Red agents
                         agent = SchellingAgent((x,y,i) ,(x, y), self, agent_type, random.normal(loc=100, scale=10))
                     self.grid.place_agent(agent =agent, pos=(x, y))
                     self.schedule.add(agent)
@@ -125,9 +113,9 @@ class Schelling(Model):
 
     def step(self):
         """
-        Run one step of the model. Update the average income in a parcel (NEW)
+        Run one step of the model. Update the average income in a parcel (changed 04/11)
         """
-        #Updating dictonary where (x,y) are the keys and the parcel's average income the value
+        #Updating dictonary where (x,y) coordinates are the keys and the parcel's average income the value
         for cell in self.grid.coord_iter():
             income_list =[]
 
@@ -142,34 +130,30 @@ class Schelling(Model):
                 for agent in list_agents:
                     income_list += [agent.income]
 
-                parcel_value = mean(income_list)
-                self.parcel_values[(x,y)] = parcel_value
+                for neighbor in self.grid.iter_neighbors(pos=(x,y),moore=True):
+                    income_list.append(neighbor.income)
+
+                parcel_value_median = median(income_list)
+                parcel_value_std = np.std(income_list)
+                #print(f'median: {parcel_value_median}')
+                #print(f'std: {parcel_value_std}')
+                lower_bound = parcel_value_median - parcel_value_std
+                upper_bound = parcel_value_median + parcel_value_std
+                self.parcel_values[(x,y)] = (lower_bound ,parcel_value_median, upper_bound)
 
         #print(self.parcel_values)
 
-
-        # calculates the blue and red satisfaction index
-        self.blue_satisfaction_index = float(self.happy_blue_agents_count / max(self.total_blue_agents_count, 1))
-        self.red_satisfaction_index  = float(self.happy_red_agents_count / max(self.total_red_agents_count, 1))
-        # calculates the total satisfaction index
-        total_agents = self.total_blue_agents_count + self.total_red_agents_count
-        happy_agents = self.happy_blue_agents_count + self.happy_red_agents_count
-        self.total_satisfaction_index = float(happy_agents / total_agents)
-
-
-        self.happy = 0  # Reset counter of happy agents
-        self.happy_blue_agents_count = 0
-        self.happy_red_agents_count = 0
+        # Reset counter of happy agents
+        self.happy = 0
 
         #Make heatmap for number agents across the grid for this step
+        print(self.schedule.steps)
         model_plots(self)
 
+        #Next step
         self.schedule.step()
         # collect data
         self.datacollector.collect(self)
-
-        if self.happy == self.schedule.get_agent_count():
-            self.running = False
 
 
 #function to analyse the level of segregation
