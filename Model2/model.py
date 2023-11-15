@@ -73,7 +73,7 @@ class Schelling(Model):
         self.minority_pc = minority_pc
 
         self.schedule = RandomActivation(self)
-        self.grid = MultiGrid(width, height, torus=True)
+        self.grid = MultiGrid(width, height, torus=False)
 
         self.parcel_values = {}
 
@@ -91,18 +91,30 @@ class Schelling(Model):
         # We use a grid iterator that returns
         # the coordinates of a cell as well as
         # its contents. (coord_iter)
+
+        # The agent type is allocated using random instead of perfectly mixed (NEW)
+        number_agents = round(self.width * self.height * self.density)
+        agent_types_list =[]
+        for number in range(0,number_agents):
+            if self.random.random() < self.minority_pc:
+                agent_type = 1  # Blue agents
+            else:
+                agent_type = 0  # Red agents
+            agent_types_list.append(agent_type)
+
+        # Placing the agents on the grid (every cell has 10 agents)
         for cell in self.grid.coord_iter():
             x = cell[1][0]
             y = cell[1][1]
             if self.random.random() < self.density:
-                for i in range(0,10):
-                    if self.random.random() < self.minority_pc:
-                        agent_type = 1
-                        agent = SchellingAgent((x,y,i), (x, y), self, agent_type, random.normal(loc=40, scale=5)) #Adding income distribution (NEW)
+                for i in range(0, 10):
+                    agent_type = random.choice(agent_types_list)
+                    if agent_type == 1:
+                        agent = SchellingAgent((x, y, i), (x, y), self, agent_type,
+                                               random.normal(loc=40, scale=5))  # Adding income distribution
                     else:
-                        agent_type = 0
-                        agent = SchellingAgent((x,y,i) ,(x, y), self, agent_type, random.normal(loc=100, scale=10))
-                    self.grid.place_agent(agent =agent, pos=(x, y))
+                        agent = SchellingAgent((x, y, i), (x, y), self, agent_type, random.normal(loc=100, scale=10))
+                    self.grid.place_agent(agent=agent, pos=(x, y))
                     self.schedule.add(agent)
 
 
