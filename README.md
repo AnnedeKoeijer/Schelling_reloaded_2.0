@@ -62,6 +62,7 @@ To set up a conda environment for the Jupyter notebook:
 ```
 conda env create -f schelling-env.yml
 conda activate schell
+pip install -e .
 ```
 * next, to run the Jupyter notebook, make sure to activate the `schell` environment first 
 * to run the `.py` script (visulization in the browser), use 
