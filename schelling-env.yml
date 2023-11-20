@@ -14,4 +14,4 @@ dependencies:
   - ipykernel
   - pandas
   - seaborn
-  - opencv
+  - opencv-python
