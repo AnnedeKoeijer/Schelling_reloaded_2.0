@@ -1,10 +1,8 @@
-import mesa.space
 from mesa import Model, Agent
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid
 from mesa.datacollection import DataCollector
 from numpy import random
-from statistics import mean
 from statistics import median
 import numpy as np
 from plots import model_plots
@@ -31,7 +29,7 @@ class SchellingAgent(Agent):
 
     def step(self):
         '''
-        This step is completely changed compared to the other/old models. It defines when and how an agent will move (changed 15/11)
+        This step that defines when and how an agent will move (changed 15/11)
         '''
 
         lower_bound, median_parcel_income, upper_bound = self.model.parcel_values[self.pos]
@@ -62,9 +60,6 @@ class SchellingAgent(Agent):
             #If possible, move to a rnadom new location that is closer to agents own income
             if len(parcel_list) != 0:
                 new_location = self.model.random.choice(parcel_list)
-                values_new = self.model.parcel_values[new_location]
-                #print(f'This is my difference {difference_average} and income {self.income}, and I am going to this new difference {values_new}')
-                #print(new_location)
                 self.model.grid.move_agent(self, new_location)
 
         else:
@@ -88,7 +83,6 @@ class Schelling(Model):
 
         self.datacollector = DataCollector(model_reporters=
             {
-                "happy": "happy",
             }, agent_reporters=
             # For testing purposes, agent's individual x and y
             {"x": lambda a: a.pos[0], "y": lambda a: a.pos[1]},
@@ -117,8 +111,6 @@ class Schelling(Model):
                     self.grid.place_agent(agent =agent, pos=(x, y))
                     self.schedule.add(agent)
 
-
-        self.running = True
         self.datacollector.collect(self)
 
 
@@ -146,16 +138,10 @@ class Schelling(Model):
 
                 parcel_value_median = median(income_list)
                 parcel_value_std = np.std(income_list)
-                #print(f'median: {parcel_value_median}')
-                #print(f'std: {parcel_value_std}')
                 lower_bound = parcel_value_median - parcel_value_std
                 upper_bound = parcel_value_median + parcel_value_std
                 self.parcel_values[(x,y)] = (lower_bound ,parcel_value_median, upper_bound)
 
-        #print(self.parcel_values)
-
-        # Reset counter of happy agents
-        self.happy = 0
 
         #Make heatmap for number agents across the grid for this step
         print(self.schedule.steps)

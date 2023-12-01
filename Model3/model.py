@@ -1,10 +1,8 @@
-import mesa.space
 from mesa import Model, Agent
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid
 from mesa.datacollection import DataCollector
 from numpy import random
-from statistics import mean
 from statistics import median
 import numpy as np
 from plots import model_plots
@@ -31,7 +29,7 @@ class SchellingAgent(Agent):
 
     def step(self):
         '''
-        This step is completely changed compared to the other/old models. It defines when and how an agent will move (changed 04/11)
+        This step defines when and how an agent will move (changed 04/11)
         '''
 
         lower_bound, median_parcel_income, upper_bound = self.model.parcel_values[self.pos]
@@ -39,13 +37,11 @@ class SchellingAgent(Agent):
 
         #If own income is higher than the upper bound or lower than the lower bound of the cells income distribution
         if (self.income > upper_bound) or (self.income < lower_bound):
-            #print(f'this is the income: {self.income}')
 
             parcel_list = []
 
             #Append cells whos median income is closer to the agents distribution or cells that are empty
             for key, value in self.model.parcel_values.items():
-                #print(f'this is the value: {value}')
                 if value == 0:      #If the cell is empty
                     parcel_list.append(key)
 
@@ -81,8 +77,6 @@ class Schelling(Model):
         self.happy = 0
         self.datacollector = DataCollector(model_reporters=
             {
-                "happy": "happy",
-                "Segregated": get_segregation
             }, agent_reporters=
             # For testing purposes, agent's individual x and y
             {"x": lambda a: a.pos[0], "y": lambda a: a.pos[1]},
@@ -125,8 +119,8 @@ class Schelling(Model):
                     self.schedule.add(agent)
 
 
-        self.running = True
         self.datacollector.collect(self)
+        print('Model3')
 
 
     def step(self):
@@ -153,16 +147,10 @@ class Schelling(Model):
 
                 parcel_value_median = median(income_list)
                 parcel_value_std = np.std(income_list)
-                #print(f'median: {parcel_value_median}')
-                #print(f'std: {parcel_value_std}')
                 lower_bound = parcel_value_median - parcel_value_std
                 upper_bound = parcel_value_median + parcel_value_std
                 self.parcel_values[(x,y)] = (lower_bound ,parcel_value_median, upper_bound)
 
-        #print(self.parcel_values)
-
-        # Reset counter of happy agents
-        self.happy = 0
 
         #Make heatmap for number agents across the grid for this step
         print(self.schedule.steps)
@@ -174,21 +162,7 @@ class Schelling(Model):
         self.datacollector.collect(self)
 
 
-#function to analyse the level of segregation
-def get_segregation(model):
-    '''
-    Find the % of agents that only have neighbors of their same type.
-    '''
-    segregated_agents = 0
-    for agent in model.schedule.agents:
-        segregated = True
-        for neighbor in model.grid.iter_neighbors(agent.pos, moore=True):
-            if neighbor.type != agent.type:
-                segregated = False
-                break
-        if segregated:
-            segregated_agents += 1
-    return segregated_agents / model.schedule.get_agent_count()
+
 
 
 
