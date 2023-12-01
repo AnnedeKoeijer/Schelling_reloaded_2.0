@@ -52,7 +52,6 @@ class SchellingAgent(Agent):
             #If possible, move to a rnadom new location that is closer to agents own income
             if len(parcel_list) != 0:
                 new_location = self.model.random.choice(parcel_list)
-                #print(new_location)
                 self.model.grid.move_agent(self, new_location)
 
         else:
@@ -96,7 +95,6 @@ class Schelling(Model):
             else:
                 agent_type = 0  # Red agents
             agent_types_list.append(agent_type)
-        print(number_agents)
 
 
         #Placing the agents on the grid (every cell has 10 agents)
@@ -105,7 +103,6 @@ class Schelling(Model):
             y = cell[1][1]
             if self.random.random() < self.density:
                 for i in range(0,10):
-                    print(agent_types_list)
                     agent_type = random.choice(agent_types_list)
                     if agent_type == 1:
                         agent = SchellingAgent((x,y,i), (x, y), self, agent_type, random.normal(loc=40, scale=5)) #Adding income distribution
