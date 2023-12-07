@@ -3,6 +3,7 @@ channels:
   - conda-forge
   - conda
   - defaults
+  - pip
 dependencies:
   - python=3.10
   - matplotlib 
@@ -13,3 +14,4 @@ dependencies:
   - ipykernel
   - pandas
   - seaborn
+  - opencv-python
