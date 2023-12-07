@@ -35,8 +35,8 @@ To run and analyze theoutcomes of a model, create a Jupyter notebook in the `/no
 from src.model01 import Schelling
 ``` 
 
-The different models are explained in detail [here](/docs/MODELS.md).
+The different models are explained in detail [here](/DOCS.md).
 
 ## References
 
-Model implementation based on @gustavo-tomas: https://github.com/gustavo-tomas/SchellingSegregation 
+Original Schelling model implementation based on (@gustavo-tomas)[@gustavo-tomas]: https://github.com/gustavo-tomas/SchellingSegregation 
