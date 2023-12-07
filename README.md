@@ -37,6 +37,10 @@ from src.model01 import Schelling
 
 The different models are explained in detail [here](/DOCS.md).
 
-## References
+## References & credits
 
-Original Schelling model implementation based on [@gustavo-tomas](@gustavo-tomas): https://github.com/gustavo-tomas/SchellingSegregation 
+Original Schelling model implementation by on [@gustavo-tomas](https://github.com/gustavo-tomas/SchellingSegregation).  
+
+## Get in touch!
+
+Working on this project: Anne & Anastassia & Trivik. [Contact us](mailto:anvy@itu.dk) 
