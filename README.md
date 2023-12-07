@@ -39,4 +39,4 @@ The different models are explained in detail [here](/DOCS.md).
 
 ## References
 
-Original Schelling model implementation based on (@gustavo-tomas)[@gustavo-tomas]: https://github.com/gustavo-tomas/SchellingSegregation 
+Original Schelling model implementation based on [@gustavo-tomas](@gustavo-tomas): https://github.com/gustavo-tomas/SchellingSegregation 
