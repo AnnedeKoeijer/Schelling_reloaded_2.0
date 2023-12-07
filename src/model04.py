@@ -172,3 +172,9 @@ class Schelling(Model):
         self.schedule.step()
         # collect data
         self.datacollector.collect(self)
+    
+    # define run model function (for X steps) 
+    def run_model(self, step_count = 50):
+        for _ in range(step_count):
+            self.step()
+        print(f"Model run finished, number of steps: {step_count}")
