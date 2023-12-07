@@ -5,7 +5,7 @@ from mesa.datacollection import DataCollector
 from numpy import random
 from statistics import median
 import numpy as np
-from src.plots import model_plots
+# from src.plots import model_plots
 from scipy.stats import skewnorm
 from scipy.stats import uniform
 
@@ -81,11 +81,32 @@ class Schelling(Model):
 
         self.parcel_values = {}
 
-        self.datacollector = DataCollector(model_reporters=
+        ### helper functions for data collector
+        def get_counts(self):
+            values = dict()
+            for cell_content, (x, y) in self.grid.coord_iter():
+                values[(x,y)] = len(cell_content)
+            return values
+
+        def get_incomes(self):
+            values = dict()
+            for cell_content, (x, y) in self.grid.coord_iter():
+                values[(x,y)] = [a.income for a in cell_content]
+            return values
+        
+        ### data collector
+        self.datacollector = DataCollector(
+            model_reporters=
             {
-            }, agent_reporters=
-            # For testing purposes, agent's individual x and y
-            {"x": lambda a: a.pos[0], "y": lambda a: a.pos[1]},
+                #"agent_incomes": count_agents(),
+                "agent_counts":  lambda m: get_counts(m),
+                "agent_incomes": lambda m: get_incomes(m),
+            }, 
+            agent_reporters=
+                {
+                    "x": lambda a: a.pos[0], 
+                    "y": lambda a: a.pos[1]
+                },
         )
 
         # Set up agents
@@ -145,7 +166,7 @@ class Schelling(Model):
 
         #Make heatmap for number agents across the grid for this step
         print(self.schedule.steps)
-        model_plots(self)
+        # model_plots(self)
 
         #Next step
         self.schedule.step()
