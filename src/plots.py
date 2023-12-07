@@ -87,3 +87,94 @@ def model_plots(model):
 
     # Show the plots
     plt.show()
+
+# ### to add later: code for plots with normalized boundaries
+
+# # find absolute max values for density and income
+
+# # max_income (if income stays the same across the entire model)
+# max_income = max([item for sublist in df.loc[0,"agent_incomes"].values() for item in sublist])
+# max_income = np.round(math.ceil(max_income/10))*10 # rounding up to nearest upper multiple of 10
+
+# # max agent density per cell
+# max_count = df.apply(lambda x: max(x.agent_counts.values()), axis = 1).max()
+# max_count = np.round(math.ceil(max_count/10))*10 # rounding up to nearest upper multiple of
+
+# # make folder and plots at each step
+
+# os.makedirs("../results/model04/", exist_ok = True)
+
+# for mystep in range(total_steps):
+
+#     zfill_step = "{:03d}".format(mystep)
+#     print(zfill_step)
+
+#     fig, ax = plt.subplots(1,3, figsize = (30,10))
+
+#     vals_counts_incomes = {}
+
+#     # plot agent numbers
+#     i = 0
+#     vals_counts = np.zeros((model.width, model.height))
+#     for k, v in df.loc[mystep, "agent_counts"].items():
+#         vals_counts_incomes[k] = {}
+#         vals_counts_incomes[k]["count"] = v
+#         vals_counts[k]=v
+#     im = ax[i].imshow(
+#         vals_counts,
+#         vmin = 0,
+#         vmax = max_count,
+#         cmap = "Reds",
+#         )
+#     ax[i].set_title("Agent counts")
+#     ax[i].set_axis_off()
+#     plt.colorbar(im, shrink = 0.7)
+
+#     # plot agent mean incomes
+#     i = 1
+#     vals_incomes = np.zeros((model.width, model.height))
+#     for k, v in df.loc[mystep, "agent_incomes"].items():
+#         vals_counts_incomes[k]["income"] = v
+#         if v:
+#             vals_incomes[k]=statistics.median(v)
+#     ax[i].set_title("Income medians")
+#     im = ax[i].imshow(
+#         vals_incomes,
+#         vmin = 0, 
+#         vmax = max_income,
+#         cmap = "Greens"
+#         )
+#     ax[i].set_axis_off()
+#     plt.colorbar(im, shrink = 0.7)
+
+#     # plot agent counts vs. median incomes
+#     i = 2
+#     ax[i].scatter(
+#         x = [v["count"] for v in vals_counts_incomes.values()],
+#         y = [statistics.median(v["income"]) if v["income"] else 0 for v in vals_counts_incomes.values()],
+#         s = 5,
+#         color = "black"
+#     )
+#     ax[i].set_title("Agent count vs. median income")
+#     ax[i].set_xlim([0,max_count])
+#     ax[i].set_xlabel("Agent counts")
+#     ax[i].set_ylim([0,max_income])
+#     ax[i].set_ylabel("Agent incomes")
+#     plt.title(zfill_step)
+#     fig.savefig(f"../results/model04/{zfill_step}.png")
+
+#     plt.close()
+
+# # make video
+# fps = 1
+# img_folder_name = "../results/model04/"
+# images = sorted([img for img in os.listdir(img_folder_name) if img.endswith(".png")])
+# video_name = "../results/model04/video.mp4"
+# frame = cv2.imread(os.path.join(img_folder_name, images[0]))
+# height, width, layers = frame.shape
+# fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+# video = cv2.VideoWriter(video_name, fourcc, fps, (width,height))
+# for image in images:
+#     video.write(cv2.imread(os.path.join(img_folder_name, image)))
+# cv2.destroyAllWindows()
+# video.release()
