@@ -40,18 +40,17 @@ class SchellingAgent(Agent):
 
             parcel_list = []
 
-            #Append cells whos median income is closer to the agents distribution or cells that are empty
+            #Append cells whos median income is closer to the agents distribution and that are empty
             for key, value in self.model.parcel_values.items():
-                if value == 0:      #If the cell is empty
-                    parcel_list.append(key)
-                else:
+                if self.model.grid.is_cell_empty(key):      #If the cell is empty
+
                     #If on right side of the median, agent is able to move to a cell to a cell where it is closer to the median than before,
                     # disregarding left or right to that median
-                    # If on right side of the median, agent is able to move to a cell to a cell where it is closer to the median than before,
-                    # restricting to only left side of the that median (NEW)
                     if difference_average >0:
                         if abs(self.income - value[1]) < difference_average:
                             parcel_list.append(key)
+                    # If on left side of the median, agent is able to move to a cell to a cell where it is closer to the median than before,
+                    # restricting to only left side of the that median (NEW)
                     else:
                         if (self.income - value[1]) < 0 and (self.income - value[1]) > difference_average:
                             parcel_list.append(key)
@@ -114,24 +113,23 @@ class Schelling(Model):
         # We use a grid iterator that returns
         # the coordinates of a cell as well as
         # its contents. (coord_iter)
-        #Placing the agents on the grid (every cell has 10 agents)
-        for cell in self.grid.coord_iter():
-            x = cell[1][0]
-            y = cell[1][1]
+        #Placing the agents on the grid (every cell has 1 agent)
+        for content, cell in self.grid.coord_iter():
+            x = cell[0]
+            y = cell[1]
             if self.random.random() < self.density:
-                for i in range(0,10):
-                    if self.income_distribution_type =='right':
-                        agent = SchellingAgent((x,y,i), (x, y), self, skewnorm.rvs(10, loc=40, scale=25, size=1)[0]) #Adding income distribution
-                    elif self.income_distribution_type =='left':
-                        agent = SchellingAgent((x, y, i), (x, y), self, skewnorm.rvs(-5, loc=120, scale=25, size=1)[0])
-                    elif self.income_distribution_type =='normal':
-                        agent = SchellingAgent((x, y, i), (x, y), self, random.normal(loc=80, scale=15))
-                    elif self.income_distribution_type =='uniform':
-                        agent = SchellingAgent((x, y, i), (x, y), self, uniform.rvs(loc=30, scale=100))
-                    else:
-                        print("ERROR no correct income distribution type defined!!")
-                    self.grid.place_agent(agent =agent, pos=(x, y))
-                    self.schedule.add(agent)
+                if self.income_distribution_type =='right':
+                    agent = SchellingAgent((x,y), (x, y), self, skewnorm.rvs(10, loc=40, scale=25, size=1)[0]) #Adding income distribution
+                elif self.income_distribution_type =='left':
+                    agent = SchellingAgent((x, y), (x, y), self, skewnorm.rvs(-5, loc=120, scale=25, size=1)[0])
+                elif self.income_distribution_type =='normal':
+                    agent = SchellingAgent((x, y), (x, y), self, random.normal(loc=80, scale=15))
+                elif self.income_distribution_type =='uniform':
+                    agent = SchellingAgent((x, y), (x, y), self, uniform.rvs(loc=30, scale=100))
+                else:
+                    print("ERROR no correct income distribution type defined!!")
+                self.grid.place_agent(agent =agent, pos=(x, y))
+                self.schedule.add(agent)
 
         self.datacollector.collect(self)
 
@@ -141,32 +139,29 @@ class Schelling(Model):
         Run one step of the model. Update the average income in a parcel (changed 04/11)
         """
         #Updating dictonary where (x,y) coordinates are the keys and the parcel's average income the value
-        for cell in self.grid.coord_iter():
+        for content, cell in self.grid.coord_iter():
             income_list =[]
 
-            list_agents = cell[0]
-            x = cell[1][0]
-            y = cell[1][1]
+            list_agents = content
+            x = cell[0]
+            y = cell[1]
 
-            if self.grid.is_cell_empty((x, y)):
-                self.parcel_values[(x,y)] = 0
-
-            else:
+            if len(list_agents) != 0:
                 for agent in list_agents:
                     income_list += [agent.income]
 
-                for neighbor in self.grid.iter_neighbors(pos=(x,y),moore=True, radius=self.neighborhood_radius):
-                    income_list.append(neighbor.income)
+            for neighbor in self.grid.iter_neighbors(pos=(x,y),moore=True, radius=self.neighborhood_radius):
+                income_list.append(neighbor.income)
 
-                parcel_value_median = median(income_list)
-                parcel_value_std = np.std(income_list)
-                lower_bound = parcel_value_median - parcel_value_std
-                upper_bound = parcel_value_median + parcel_value_std
-                self.parcel_values[(x,y)] = (lower_bound ,parcel_value_median, upper_bound)
+            parcel_value_median = median(income_list)
+            parcel_value_std = np.std(income_list)
+            lower_bound = parcel_value_median - parcel_value_std
+            upper_bound = parcel_value_median + parcel_value_std
+            self.parcel_values[(x,y)] = (lower_bound ,parcel_value_median, upper_bound)
 
 
         #Make heatmap for number agents across the grid for this step
-        print(self.schedule.steps)
+        #print(self.schedule.steps)
         # model_plots(self)
 
         #Next step
